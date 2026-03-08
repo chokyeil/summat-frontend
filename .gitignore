@@ -7,9 +7,18 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
+# Dependencies
 node_modules
+
+# Build output
 dist
 dist-ssr
+
+# Environment variables
+.env
+.env.*
+
+# Local config
 *.local
 
 # Editor directories and files
@@ -22,3 +31,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# AI / Local tool files
+.claude/
+CLAUDE.md
+FRONTEND_RULES.md

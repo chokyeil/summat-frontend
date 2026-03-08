@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(npm install react-router-dom axios 2>&1)",
-      "Bash(npx tsc --noEmit 2>&1)"
-    ]
-  }
-}
