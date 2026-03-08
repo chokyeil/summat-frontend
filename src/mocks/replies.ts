@@ -1,0 +1,53 @@
+import type { ReplyResDto } from '../types/place';
+
+export const mockReplies: ReplyResDto[] = [
+  {
+    id: 1,
+    placeId: 1,
+    userId: 101,
+    nickName: '커피마니아',
+    content: '원두 로스팅이 정말 훌륭해요. 재방문 의사 100%!',
+    depth: 0,
+    deleted: false,
+    hidden: false,
+    createdAt: '2024-03-01T10:00:00Z',
+    replies: [
+      {
+        id: 4,
+        placeId: 1,
+        userId: 104,
+        nickName: '바리스타팬',
+        content: '맞아요, 싱글오리진도 꼭 드셔보세요!',
+        depth: 1,
+        deleted: false,
+        hidden: false,
+        createdAt: '2024-03-01T11:30:00Z',
+        replies: [],
+      },
+    ],
+  },
+  {
+    id: 2,
+    placeId: 1,
+    userId: 102,
+    nickName: '성수탐험가',
+    content: '주말엔 자리가 많이 없어요. 평일 오전 추천!',
+    depth: 0,
+    deleted: false,
+    hidden: false,
+    createdAt: '2024-03-05T14:20:00Z',
+    replies: [],
+  },
+  {
+    id: 3,
+    placeId: 1,
+    userId: 103,
+    nickName: '삭제된유저',
+    content: '삭제된 댓글입니다.',
+    depth: 0,
+    deleted: true,
+    hidden: false,
+    createdAt: '2024-03-07T09:00:00Z',
+    replies: [],
+  },
+];
