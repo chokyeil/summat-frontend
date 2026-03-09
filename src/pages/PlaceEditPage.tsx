@@ -1,49 +1,86 @@
+import axios from 'axios';
+import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PlaceForm from '../components/PlaceForm';
 import type { PlaceFormValues } from '../components/PlaceForm';
+import { getPlaceDetailById, updatePlace } from '../api/places';
+import type { ApiResponse } from '../types/auth';
 import type { PlaceTagCode } from '../constants/placeTags';
 
 export default function PlaceEditPage() {
   const { placeId } = useParams<{ placeId: string }>();
   const navigate = useNavigate();
 
-  // TODO: API 연동 시 placeId로 getPlaceDetail(placeId) 호출하여 initialValues 설정
-  void placeId;
+  const [initialValues, setInitialValues] = useState<PlaceFormValues | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  // TODO: 실제 API 연동 시 useEffect + getPlaceDetail(placeId) 결과로 교체
-  // TODO: API 연동 시 getPlaceDetailById(placeId) 결과로 교체
-  const initialValues: PlaceFormValues = {
-    name: '브루클린 카페',
-    lotAddress: '서울 성동구 성수동1가 685-10',
-    roadAddress: '서울 성동구 성수이로7길 11',
-    category: '카페',
-    region: '서울',
-    tags: ['wifi', 'mood'] as PlaceTagCode[],
-    summary: '성수동 감성 카페',
-    description: '조용하고 작업하기 좋은 성수동의 대표 카페입니다.',
-    image: null,
-  };
+  useEffect(() => {
+    const id = Number(placeId);
+    if (!placeId || isNaN(id)) {
+      setError('잘못된 접근입니다.');
+      setLoading(false);
+      return;
+    }
+    getPlaceDetailById(id)
+      .then((data) => {
+        setInitialValues({
+          name: data.placeName,
+          lotAddress: data.lotAddress,
+          roadAddress: data.roadAddress,
+          category: data.category,
+          region: data.region,
+          tags: data.tags as PlaceTagCode[],
+          summary: data.summary,
+          description: data.description,
+          image: null, // 이미지는 새로 선택 시에만 교체, 미선택 시 기존 이미지 유지
+        });
+      })
+      .catch(() => setError('장소 정보를 불러오지 못했습니다.'))
+      .finally(() => setLoading(false));
+  }, [placeId]);
 
-  function handleSubmit(values: PlaceFormValues) {
-    // TODO: FormData 빌드 후 updatePlace(placeId, formData) API 연동 (FRONTEND_RULES.md §7)
-    // const formData = new FormData();
-    // formData.append('placeName', values.name);
-    // formData.append('placeType', values.category);
-    // formData.append('placeRegion', values.region);
-    // values.tags.forEach((tag) => formData.append('tags', tag));
-    // formData.append('oneLineDesc', values.summary);
-    // formData.append('placeDescription', values.description);
-    // if (values.image) formData.append('image', values.image);
-    // await updatePlace(placeId, formData); // src/api/places.ts에 구현 예정
-    void values;
+  async function handleSubmit(values: PlaceFormValues) {
+    const id = Number(placeId);
+    if (!placeId || isNaN(id)) return;
+    setIsSubmitting(true);
+    setSubmitError(null);
+    try {
+      const formData = new FormData();
+      formData.append('placeName', values.name);
+      formData.append('lotAddress', values.lotAddress);
+      formData.append('roadAddress', values.roadAddress);
+      formData.append('category', values.category);
+      formData.append('region', values.region);
+      formData.append('summary', values.summary);
+      formData.append('description', values.description);
+      // tags: 동일 key 반복 append (FRONTEND_RULES §7, 백엔드 스펙)
+      values.tags.forEach((tag) => formData.append('tags', tag));
+      // image: 새 파일 선택 시에만 append — 미선택 시 기존 이미지 유지 (백엔드 정책)
+      if (values.image) formData.append('image', values.image);
+
+      await updatePlace(id, formData);
+      navigate(`/places/${placeId}`);
+    } catch (err) {
+      const apiMessage = axios.isAxiosError(err)
+        ? (err.response?.data as ApiResponse | undefined)?.message
+        : undefined;
+      setSubmitError(apiMessage ?? '수정에 실패했습니다.');
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   function handleDelete() {
     if (!confirm('정말 삭제하시겠어요?')) return;
-    // TODO: deletePlace(placeId) API 연동 후 navigate('/places')
-    // await deletePlace(placeId); // src/api/places.ts에 구현 예정
-    // navigate('/places');
+    // TODO: 장소 삭제 API 엔드포인트 확정 후 deletePlace(placeId) 연동
   }
+
+  if (loading) return <p className="status-message">로딩 중...</p>;
+  if (error) return <p className="status-message" role="alert">{error}</p>;
+  if (!initialValues) return null;
 
   return (
     <>
@@ -55,11 +92,13 @@ export default function PlaceEditPage() {
       </div>
 
       <main className="place-create-container">
+        {submitError && <p className="status-message" role="alert">{submitError}</p>}
         <PlaceForm
           mode="edit"
           initialValues={initialValues}
           onSubmit={handleSubmit}
           onDelete={handleDelete}
+          isSubmitting={isSubmitting}
         />
       </main>
     </>

@@ -49,7 +49,8 @@ export async function createPlace(formData: FormData): Promise<void> {
 /**
  * PUT /places/update/{placeId} — 장소 수정 (FormData)
  * FRONTEND_RULES §7: 파일 업로드는 FormData 사용, Content-Type은 axios 자동 설정
- * TODO: 백엔드 응답 data 구조 확인 후 반환 타입 수정
+ * 수정 성공 시 data 없음 — message만 사용. Authorization: Bearer 필요.
+ * image를 append하지 않으면 기존 이미지 유지 (백엔드 정책).
  */
 export async function updatePlace(placeId: number, formData: FormData): Promise<void> {
   await api.put<ApiResponse>(`/places/update/${placeId}`, formData);
