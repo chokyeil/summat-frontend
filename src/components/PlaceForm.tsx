@@ -124,7 +124,7 @@ export default function PlaceForm({
       <div className="pc-form-group">
         <span className="pc-form-label">카테고리</span>
         <div className="pc-chip-group">
-          {CATEGORIES.map((cat) => (
+          {CATEGORIES.filter((cat) => cat.code !== 'all').map((cat) => (
             <button
               key={cat.code}
               type="button"

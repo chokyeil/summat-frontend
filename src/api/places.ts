@@ -22,9 +22,35 @@ function isNetworkError(err: unknown): boolean {
 // 백엔드 연동 API 함수 — 백엔드 규격 엔드포인트 + 타입 사용
 // ============================================================
 
-/** GET /places/list — 장소 목록 조회 (페이지네이션 래퍼 구조 확정) */
-export async function getPlaceList(): Promise<PlaceListResDto> {
-  const res = await api.get<ApiResponse<PlaceListResDto>>('/places/list');
+/**
+ * GET /places/search 파라미터 (확정)
+ * 목록 조회 / 검색 / 필터를 모두 이 엔드포인트로 처리.
+ * 'all' 또는 빈 값은 해당 파라미터를 생략하여 전체 조회.
+ */
+export interface PlaceSearchParams {
+  q?: string;           // 검색어
+  categories?: string;  // 카테고리 (백엔드 파라미터명: categories)
+  regions?: string;     // 지역 (백엔드 파라미터명: regions)
+  tags?: string[];      // 태그 — 반복 key 방식 (tags=wifi&tags=quiet)
+  page?: number;
+  size?: number;
+}
+
+/**
+ * GET /places/search — 장소 목록/검색/필터 통합 조회
+ * 초기 진입, 검색어, 카테고리, 지역, 태그 필터 모두 이 함수로 처리.
+ * TODO: tags 필터는 백엔드 반영 완료 후 동작 확인 필요 (현재 전송 구조만 맞춤)
+ */
+export async function getPlaceList(params?: PlaceSearchParams): Promise<PlaceListResDto> {
+  const qp = new URLSearchParams();
+  if (params?.q) qp.append('q', params.q);
+  if (params?.categories && params.categories !== 'all') qp.append('categories', params.categories);
+  if (params?.regions && params.regions !== 'all') qp.append('regions', params.regions);
+  // TODO: 백엔드 tags 필터 반영 완료 전까지 전송 구조만 유지 (현재 필터링 미동작)
+  params?.tags?.forEach((tag) => qp.append('tags', tag));
+  if (params?.page !== undefined) qp.append('page', String(params.page));
+  if (params?.size !== undefined) qp.append('size', String(params.size));
+  const res = await api.get<ApiResponse<PlaceListResDto>>('/places/search', { params: qp });
   return res.data.data;
 }
 
@@ -87,9 +113,8 @@ export async function getPlaces(page = 0): Promise<PlaceListPageResDto> {
 }
 
 /**
- * 태그 필터 검색. tags는 code 배열로 전송.
- * URLSearchParams.append()로 tags=wifi&tags=socket 형태 보장.
- * TODO: 실제 엔드포인트 경로 확인 필요 — 백엔드 검색 API 규격 미확정
+ * @deprecated mock 전용 — Places.tsx는 getPlaceList()로 교체 완료
+ * 엔드포인트 /places/search 확정. 타입/구조는 위 getPlaceList() 참고.
  */
 export async function searchPlaces(tags: PlaceTagCode[], page = 0): Promise<PlaceListPageResDto> {
   if (USE_MOCK) return mockPlaceList;

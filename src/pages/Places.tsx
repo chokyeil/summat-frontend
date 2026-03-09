@@ -16,30 +16,31 @@ export default function Places() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // UI 필터 상태 — API 연동 전 로컬 상태만 관리
-  // 실제 서버 필터링 구현 시 api/places.ts의 searchPlaces()와 연결
+  // UI 필터 상태 — 변경 시 getPlaceList() 재호출 (GET /places/search)
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryCode>(CATEGORIES[0].code);
   const [activeRegion, setActiveRegion] = useState<RegionCode>('all');
   const [selectedTags, setSelectedTags] = useState<PlaceTagCode[]>([]);
 
   useEffect(() => {
-    getPlaceList()
+    setLoading(true);
+    setError(null);
+    getPlaceList({
+      q: searchQuery.trim() || undefined,
+      categories: activeCategory,
+      regions: activeRegion,
+      tags: selectedTags.length > 0 ? selectedTags : undefined,
+    })
       .then((data) => setPlaces(data.placeList))
       .catch(() => setError('장소 목록을 불러오지 못했습니다.'))
       .finally(() => setLoading(false));
-  }, []);
+  }, [searchQuery, activeCategory, activeRegion, selectedTags]);
 
   function handleTagToggle(code: PlaceTagCode) {
     setSelectedTags((prev) =>
       prev.includes(code) ? prev.filter((t) => t !== code) : [...prev, code]
     );
   }
-
-  // 현재 미사용 상태값 — 서버 연동 시 useEffect 의존성에 추가 예정
-  void searchQuery;
-  void activeCategory;
-  void activeRegion;
 
   function renderList() {
     if (loading) return <p className="status-message">로딩 중...</p>;
