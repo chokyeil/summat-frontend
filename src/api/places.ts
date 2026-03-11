@@ -83,6 +83,15 @@ export async function updatePlace(placeId: number, formData: FormData): Promise<
 }
 
 /**
+ * DELETE /places/remove/{placeId} — 장소 삭제
+ * 삭제 성공 시 data 없음 — message만 사용. Authorization: Bearer 필요.
+ * 403: body 없음 (토큰 없음/만료). 404/400: ApiResponse.message 포함.
+ */
+export async function deletePlace(placeId: number): Promise<void> {
+  await api.delete<ApiResponse>(`/places/remove/${placeId}`);
+}
+
+/**
  * GET /reply/{placeId} — 장소 댓글 목록 조회
  * 인증 불필요. 루트 댓글(depth=0) 배열 반환, 각 댓글 내 replies로 대댓글 포함.
  * replies 필드는 null 가능 — ReplyResDto.replies: ReplyResDto[] | null

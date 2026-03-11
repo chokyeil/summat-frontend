@@ -1076,23 +1076,112 @@ button {
 
 /* MyPlacesSection — 카드 내부 링크 */
 .mini-card-link {
-  display: block;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
   color: inherit;
 }
 
+/* 수정/삭제 액션 버튼 영역 */
+.mini-card-actions {
+  display: flex;
+  border-top: 1px solid var(--color-border);
+}
+
 .mini-card-edit {
-  display: block;
+  flex: 1;
   text-align: center;
   font-size: 0.75rem;
   color: var(--color-brand);
   font-weight: 600;
-  padding: 6px 8px;
-  border-top: 1px solid var(--color-border);
+  padding: 7px 4px;
+  border-right: 1px solid var(--color-border);
   transition: background-color 0.15s;
 }
 
 .mini-card-edit:hover {
   background-color: var(--color-brand-light);
+}
+
+.mini-card-delete {
+  flex: 1;
+  text-align: center;
+  font-size: 0.75rem;
+  color: #e53e3e;
+  font-weight: 600;
+  padding: 7px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s;
+}
+
+.mini-card-delete:hover {
+  background-color: #fff0f0;
+}
+
+/* My Places — 헤더 우측 (nav 버튼 + 등록하기 링크) */
+.my-places-header-right {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.my-places-nav {
+  display: flex;
+  gap: 4px;
+}
+
+.mp-nav-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--color-text);
+  cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.mp-nav-btn:hover:not(:disabled) {
+  background: var(--color-brand-light);
+  border-color: var(--color-brand);
+  color: var(--color-brand);
+}
+
+.mp-nav-btn:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+/* My Places — 스크롤 래퍼: wrapper가 스크롤 소유, 오른쪽 그라디언트로 카드 peek */
+.my-places-scroll-wrapper {
+  position: relative;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.my-places-scroll-wrapper::-webkit-scrollbar {
+  display: none;
+}
+
+.my-places-scroll-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 48px;
+  background: linear-gradient(to right, transparent, var(--color-bg));
+  pointer-events: none;
+  z-index: 1;
 }
 
 /* Empty State */
@@ -1107,30 +1196,24 @@ button {
   line-height: 1.7;
 }
 
-/* Horizontal Scroll Grid */
+/* Horizontal Scroll Grid — 순수 flex 컨테이너 (스크롤은 my-places-scroll-wrapper가 담당) */
 .horizontal-grid {
   display: flex;
   gap: 12px;
-  overflow-x: auto;
-  padding-bottom: 8px;
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-}
-
-.horizontal-grid::-webkit-scrollbar {
-  display: none;
+  padding: 4px 4px 12px;
 }
 
 /* Mini Card */
 .mini-card {
-  min-width: 160px;
+  width: 160px;
   background: var(--color-surface);
   border-radius: 12px;
   overflow: hidden;
   border: 1px solid var(--color-border);
-  display: block;
-  color: inherit;
+  display: flex;
+  flex-direction: column;
   flex-shrink: 0;
+  scroll-snap-align: start;
   transition: transform 0.2s;
 }
 
@@ -1228,14 +1311,8 @@ button {
     flex-shrink: 0;
   }
 
-  .horizontal-grid {
-    overflow-x: visible;
-    flex-wrap: wrap;
-  }
-
   .mini-card {
-    min-width: calc(33.333% - 8px);
-    flex-shrink: unset;
+    width: 180px;
   }
 }
 

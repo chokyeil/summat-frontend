@@ -1,41 +1,104 @@
+import { useRef, useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import type { PlaceMainListResDto } from '../types/place';
+import type { MyPlaceItemResDto } from '../types/place';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 interface MyPlacesSectionProps {
-  places: PlaceMainListResDto[];
+  places: MyPlaceItemResDto[];
+  onDelete?: (placeId: number) => void;
 }
 
-export default function MyPlacesSection({ places }: MyPlacesSectionProps) {
+const SCROLL_STEP = 192; // 카드 폭(160~180px) + gap(12px) 기준
+
+export default function MyPlacesSection({ places, onDelete }: MyPlacesSectionProps) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [canScrollLeft, setCanScrollLeft] = useState(false);
+  const [canScrollRight, setCanScrollRight] = useState(false);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollRight(el.scrollWidth > el.clientWidth);
+  }, [places]);
+
+  function handleScroll() {
+    const el = scrollRef.current;
+    if (!el) return;
+    setCanScrollLeft(el.scrollLeft > 0);
+    setCanScrollRight(el.scrollLeft < el.scrollWidth - el.clientWidth - 1);
+  }
+
+  function handleScrollLeft() {
+    scrollRef.current?.scrollBy({ left: -SCROLL_STEP, behavior: 'smooth' });
+  }
+
+  function handleScrollRight() {
+    scrollRef.current?.scrollBy({ left: SCROLL_STEP, behavior: 'smooth' });
+  }
+
   return (
     <section className="mypage-section">
       <div className="mypage-section-header">
         <h3 className="mypage-section-title">내가 등록한 장소</h3>
-        <Link to="/register" className="mypage-cta-link">+ 등록하기</Link>
+        <div className="my-places-header-right">
+          {places.length > 0 && (
+            <div className="my-places-nav">
+              <button
+                type="button"
+                className="mp-nav-btn"
+                onClick={handleScrollLeft}
+                disabled={!canScrollLeft}
+                aria-label="이전 카드"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                className="mp-nav-btn"
+                onClick={handleScrollRight}
+                disabled={!canScrollRight}
+                aria-label="다음 카드"
+              >
+                ›
+              </button>
+            </div>
+          )}
+          <Link to="/register" className="mypage-cta-link">+ 등록하기</Link>
+        </div>
       </div>
       {places.length === 0 ? (
         <div className="empty-state">
           아직 직접 등록한 장소가 없어요.<br />나만 아는 맛집을 공유해볼까요?
         </div>
       ) : (
-        <div className="horizontal-grid">
-          {places.map((place) => (
-            <article key={place.placeId} className="mini-card">
-              <Link to={`/places/${place.placeId}`} className="mini-card-link">
-                {place.placeImageUrl ? (
-                  <img src={place.placeImageUrl} alt={place.placeName} className="mini-card-img" />
-                ) : (
-                  <div className="mini-card-img mini-card-img--empty" aria-hidden="true" />
-                )}
-                <div className="mini-card-info">
-                  <div className="mini-card-title">{place.placeName}</div>
-                  <div className="mini-card-meta">{place.placeType}</div>
+        <div className="my-places-scroll-wrapper" ref={scrollRef} onScroll={handleScroll}>
+          <div className="horizontal-grid">
+            {places.map((place) => (
+              <article key={place.placeId} className="mini-card">
+                <Link to={`/places/${place.placeId}`} className="mini-card-link">
+                  {place.imageUrl ? (
+                    <img src={resolveImageUrl(place.imageUrl)} alt={place.placeName} className="mini-card-img" />
+                  ) : (
+                    <div className="mini-card-img mini-card-img--empty" aria-hidden="true" />
+                  )}
+                  <div className="mini-card-info">
+                    <div className="mini-card-title">{place.placeName}</div>
+                    <div className="mini-card-meta">{place.category}</div>
+                  </div>
+                </Link>
+                <div className="mini-card-actions">
+                  <Link to={`/places/${place.placeId}/edit`} className="mini-card-edit">
+                    수정하기
+                  </Link>
+                  {onDelete && (
+                    <button type="button" className="mini-card-delete" onClick={() => onDelete(place.placeId)}>
+                      삭제하기
+                    </button>
+                  )}
                 </div>
-              </Link>
-              <Link to={`/places/${place.placeId}/edit`} className="mini-card-edit">
-                수정하기
-              </Link>
-            </article>
-          ))}
+              </article>
+            ))}
+          </div>
         </div>
       )}
     </section>
