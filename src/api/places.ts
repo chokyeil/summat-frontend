@@ -7,6 +7,10 @@ import type {
   PlaceListPageResDto,
   PlacesDetailResDto,
   ReplyResDto,
+  CreateReplyReqDto,
+  UpdateReplyReqDto,
+  TogglePlaceLikeResDto,
+  IncreasePlaceViewResDto,
 } from '../types/place';
 import type { PlaceTagCode } from '../constants/placeTags';
 import { mockPlaceList, mockPlaceDetail } from '../mocks/places';
@@ -92,6 +96,28 @@ export async function deletePlace(placeId: number): Promise<void> {
 }
 
 /**
+ * POST /places/like/{placeId} — 좋아요 토글
+ * Authorization: Bearer 필요. 토글 방식 (누르면 추가, 다시 누르면 취소).
+ * 응답의 liked, likeCount로 즉시 UI 갱신. 별도 재조회 불필요.
+ * 401: 비로그인/토큰 만료. 400: 없는 placeId (404가 아님 주의).
+ */
+export async function togglePlaceLike(placeId: number): Promise<TogglePlaceLikeResDto> {
+  const res = await api.post<ApiResponse<TogglePlaceLikeResDto>>(`/places/like/${placeId}`);
+  return res.data.data;
+}
+
+/**
+ * POST /places/view/{placeId} — 조회수 증가
+ * 인증 불필요. 상세 페이지 진입 시 getPlaceDetailById 호출 전에 먼저 호출.
+ * 실패해도 페이지 로드를 차단하지 않음 (catch 무시).
+ * 400: 없는 placeId. 응답의 viewCount로 즉시 UI 갱신.
+ */
+export async function increasePlaceView(placeId: number): Promise<IncreasePlaceViewResDto> {
+  const res = await api.post<ApiResponse<IncreasePlaceViewResDto>>(`/places/view/${placeId}`);
+  return res.data.data;
+}
+
+/**
  * GET /reply/{placeId} — 장소 댓글 목록 조회
  * 인증 불필요. 루트 댓글(depth=0) 배열 반환, 각 댓글 내 replies로 대댓글 포함.
  * replies 필드는 null 가능 — ReplyResDto.replies: ReplyResDto[] | null
@@ -99,6 +125,34 @@ export async function deletePlace(placeId: number): Promise<void> {
 export async function getReplies(placeId: number): Promise<ReplyResDto[]> {
   const res = await api.get<ApiResponse<ReplyResDto[]>>(`/reply/${placeId}`);
   return res.data.data;
+}
+
+/**
+ * POST /reply/{placeId} — 댓글/대댓글 작성
+ * Authorization: Bearer 필요.
+ * parentId: null → 일반 댓글, number → 대댓글.
+ * 성공 응답의 replies가 null이므로 낙관적 업데이트 대신 목록 재조회 필요.
+ */
+export async function createReply(placeId: number, body: CreateReplyReqDto): Promise<void> {
+  await api.post<ApiResponse>(`/reply/${placeId}`, body);
+}
+
+/**
+ * PUT /reply/{replyId} — 댓글 수정
+ * Authorization: Bearer 필요. 본인 댓글만 수정 가능. deleted 댓글 수정 불가.
+ * 성공 후 목록 재조회 필요.
+ */
+export async function updateReply(replyId: number, body: UpdateReplyReqDto): Promise<void> {
+  await api.put<ApiResponse>(`/reply/${replyId}`, body);
+}
+
+/**
+ * DELETE /reply/{replyId} — 댓글 삭제 (soft delete)
+ * Authorization: Bearer 필요. 본인 댓글만 삭제 가능.
+ * 삭제 후 content가 "삭제된 댓글입니다."로 마스킹되어 내려오므로 목록 재조회 필요.
+ */
+export async function deleteReply(replyId: number): Promise<void> {
+  await api.delete<ApiResponse>(`/reply/${replyId}`);
 }
 
 // ============================================================

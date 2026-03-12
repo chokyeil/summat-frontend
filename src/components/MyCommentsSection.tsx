@@ -1,7 +1,8 @@
-import type { MyCommentDto } from '../types/user';
+import { Link } from 'react-router-dom';
+import type { MyReplyResDto } from '../types/user';
 
 interface MyCommentsSectionProps {
-  comments: MyCommentDto[];
+  comments: MyReplyResDto[];
 }
 
 export default function MyCommentsSection({ comments }: MyCommentsSectionProps) {
@@ -15,8 +16,11 @@ export default function MyCommentsSection({ comments }: MyCommentsSectionProps) 
       ) : (
         <ul className="mypage-comment-list">
           {comments.map((comment) => (
-            <li key={comment.id} className="mypage-comment-item">
-              <div className="mypage-comment-place">{comment.placeName}</div>
+            <li key={comment.replyId} className="mypage-comment-item">
+              <Link to={`/places/${comment.placeId}`} className="mypage-comment-place">
+                {comment.placeName}
+                {comment.depth === 1 && ' (대댓글)'}
+              </Link>
               <div className="mypage-comment-text">{comment.content}</div>
             </li>
           ))}

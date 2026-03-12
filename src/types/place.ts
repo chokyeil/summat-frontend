@@ -17,6 +17,7 @@ export interface PlaceListItemResDto {
   likeCount: number;
   viewCount: number;
   createdAt: string;
+  liked: boolean; // 현재 로그인 사용자의 좋아요 여부. 비로그인 시 false 고정.
 }
 
 /** GET /places/list 전체 응답 data 래퍼 (페이지네이션 구조 확정) */
@@ -44,7 +45,43 @@ export interface PlaceDetailResDto {
   likeCount: number;
   viewCount: number;
   createdAt: string;
+  liked: boolean; // 현재 로그인 사용자의 좋아요 여부. 비로그인 시 false 고정.
   // authorId: 현재 백엔드 응답에 포함되지 않음 — 작성자 판별 기능은 추후 별도 API 확인 필요
+}
+
+/** POST /places/like/{placeId} — 좋아요 토글 응답 */
+export interface TogglePlaceLikeResDto {
+  liked: boolean;
+  likeCount: number;
+}
+
+/** POST /places/view/{placeId} — 조회수 증가 응답 */
+export interface IncreasePlaceViewResDto {
+  viewCount: number;
+}
+
+/** GET /mypage/liked-places — 좋아요한 장소 item. createdAt은 좋아요 날짜가 아닌 장소 등록일. */
+export interface LikedPlaceResDto {
+  placeId: number;
+  placeName: string;
+  imageUrl: string;
+  summary: string;
+  category: string;
+  region: string;
+  liked: boolean;   // 사실상 true로 고정. 응답 그대로 사용.
+  likeCount: number;
+  createdAt: string; // 장소 등록일 (좋아요 날짜 아님)
+}
+
+/** GET /mypage/places — 내가 등록한 장소 아이템. tags/likeCount/viewCount 없음. */
+export interface MyPlaceItemResDto {
+  placeId: number;
+  placeName: string;
+  imageUrl: string;
+  summary: string;
+  category: string;
+  region: string;
+  createdAt: string;
 }
 
 // ============================================================
@@ -134,11 +171,19 @@ export interface ReplyResDto {
 }
 
 /**
- * POST ??? — 댓글 작성 요청 DTO
- * TODO: 백엔드 댓글 작성 API 규격 확정 후 구현
- *   - 엔드포인트 경로 확인
- *   - 요청 필드: content 외 필요한 필드 확인
- *   - 인증 필요 여부 (현재 isLoggedIn 기반 UI만 구현)
- *   - 대댓글 작성 시 parentId 등 필드 여부 확인 (조회 응답에는 parentId 없음)
+ * POST /reply/{placeId} — 댓글/대댓글 작성 요청 DTO
+ * parentId: null → 일반 댓글, number → 대댓글 (depth=0 댓글의 id)
+ * 대댓글(depth=1)에 대댓글 작성 불가 — UI에서 depth 체크로 차단
  */
-// export interface CreateReplyReqDto { content: string; } // 미확정 — 구현 보류
+export interface CreateReplyReqDto {
+  content: string;
+  parentId: number | null;
+}
+
+/**
+ * PUT /reply/{replyId} — 댓글 수정 요청 DTO
+ * 본인 댓글만 수정 가능. deleted 댓글은 수정 불가.
+ */
+export interface UpdateReplyReqDto {
+  content: string;
+}

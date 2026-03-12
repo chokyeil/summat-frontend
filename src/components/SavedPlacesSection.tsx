@@ -1,8 +1,9 @@
 import { Link } from 'react-router-dom';
-import type { PlaceMainListResDto } from '../types/place';
+import type { LikedPlaceResDto } from '../types/place';
+import { resolveImageUrl } from '../utils/imageUrl';
 
 interface SavedPlacesSectionProps {
-  places: PlaceMainListResDto[];
+  places: LikedPlaceResDto[];
 }
 
 export default function SavedPlacesSection({ places }: SavedPlacesSectionProps) {
@@ -18,19 +19,22 @@ export default function SavedPlacesSection({ places }: SavedPlacesSectionProps) 
         <div className="empty-state">아직 찜한 장소가 없어요.</div>
       ) : (
         <div className="horizontal-grid">
-          {places.map((place) => (
-            <Link key={place.placeId} to={`/places/${place.placeId}`} className="mini-card">
-              {place.placeImageUrl ? (
-                <img src={place.placeImageUrl} alt={place.placeName} className="mini-card-img" />
-              ) : (
-                <div className="mini-card-img mini-card-img--empty" aria-hidden="true" />
-              )}
-              <div className="mini-card-info">
-                <div className="mini-card-title">{place.placeName}</div>
-                <div className="mini-card-meta">{place.placeType}</div>
-              </div>
-            </Link>
-          ))}
+          {places.map((place) => {
+            const imgSrc = resolveImageUrl(place.imageUrl);
+            return (
+              <Link key={place.placeId} to={`/places/${place.placeId}`} className="mini-card">
+                {imgSrc ? (
+                  <img src={imgSrc} alt={place.placeName} className="mini-card-img" />
+                ) : (
+                  <div className="mini-card-img mini-card-img--empty" aria-hidden="true" />
+                )}
+                <div className="mini-card-info">
+                  <div className="mini-card-title">{place.placeName}</div>
+                  <div className="mini-card-meta">{place.category}</div>
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </section>

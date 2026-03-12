@@ -7,10 +7,17 @@ const tagLabelMap = Object.fromEntries(PLACE_TAGS.map((t) => [t.code, t.label]))
 
 interface PlaceCardProps {
   place: PlaceListItemResDto;
+  onLike?: () => void;
 }
 
-export default function PlaceCard({ place }: PlaceCardProps) {
+export default function PlaceCard({ place, onLike }: PlaceCardProps) {
   const imgSrc = resolveImageUrl(place.imageUrl);
+
+  function handleLikeClick(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    onLike?.();
+  }
 
   return (
     <article className="card">
@@ -36,7 +43,14 @@ export default function PlaceCard({ place }: PlaceCardProps) {
             ))}
           </div>
           <div className="card-footer">
-            <span>❤️ {place.likeCount}</span>
+            <button
+              type="button"
+              className="card-like-btn"
+              onClick={handleLikeClick}
+              aria-label={`좋아요 ${place.likeCount}`}
+            >
+              {place.liked ? '❤️' : '🤍'} {place.likeCount}
+            </button>
             <span>👁 {place.viewCount}</span>
           </div>
         </div>

@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import PlaceForm from '../components/PlaceForm';
 import type { PlaceFormValues } from '../components/PlaceForm';
-import { getPlaceDetailById, updatePlace } from '../api/places';
+import { getPlaceDetailById, updatePlace, deletePlace } from '../api/places';
 import type { ApiResponse } from '../types/auth';
 import type { PlaceTagCode } from '../constants/placeTags';
 
@@ -15,6 +15,7 @@ export default function PlaceEditPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -73,9 +74,30 @@ export default function PlaceEditPage() {
     }
   }
 
-  function handleDelete() {
+  async function handleDelete() {
     if (!confirm('정말 삭제하시겠어요?')) return;
-    // TODO: 장소 삭제 API 엔드포인트 확정 후 deletePlace(placeId) 연동
+    const id = Number(placeId);
+    if (!placeId || isNaN(id)) return;
+    setIsDeleting(true);
+    setSubmitError(null);
+    try {
+      await deletePlace(id);
+      navigate('/places');
+    } catch (err) {
+      if (axios.isAxiosError(err)) {
+        if (err.response?.status === 403) {
+          // 403: body 없음 — 고정 메시지 처리
+          setSubmitError('권한이 없습니다.');
+        } else {
+          const apiMessage = (err.response?.data as ApiResponse | undefined)?.message;
+          setSubmitError(apiMessage ?? '삭제에 실패했습니다.');
+        }
+      } else {
+        setSubmitError('삭제에 실패했습니다.');
+      }
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   if (loading) return <p className="status-message">로딩 중...</p>;
@@ -98,7 +120,7 @@ export default function PlaceEditPage() {
           initialValues={initialValues}
           onSubmit={handleSubmit}
           onDelete={handleDelete}
-          isSubmitting={isSubmitting}
+          isSubmitting={isSubmitting || isDeleting}
         />
       </main>
     </>

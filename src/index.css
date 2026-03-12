@@ -306,6 +306,29 @@ button {
   padding-top: 12px;
 }
 
+/* 카드 좋아요 버튼 — 기본 button 스타일 리셋, 카드 링크 이동과 분리 */
+.card-like-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* 상세 페이지 engagement-stats 좋아요 버튼 리셋 */
+.like-stat-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 /* === Bottom Navigation (모바일 only) === */
 .bottom-nav {
   position: fixed;
@@ -557,6 +580,7 @@ button {
 
 .comment-content {
   flex: 1;
+  min-width: 0; /* flex 자식 overflow 방지 — 긴 댓글이 이미지 영역을 밀지 않도록 */
 }
 
 .nickname {
@@ -568,12 +592,88 @@ button {
 .comment-text {
   font-size: 0.95rem;
   color: #555;
+  margin-top: 2px;
+  word-break: break-word;
+  overflow-wrap: anywhere;
+}
+
+/* 댓글 액션 버튼 영역 */
+.comment-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.comment-reply-btn,
+.comment-edit-btn,
+.comment-delete-btn {
+  font-size: 0.78rem;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+
+.comment-reply-btn {
+  color: #888;
+}
+
+.comment-reply-btn:hover {
+  color: #444;
+  background: #f0f0f0;
+}
+
+.comment-edit-btn {
+  color: #666;
+}
+
+.comment-edit-btn:hover {
+  color: #333;
+  background: #f0f0f0;
+}
+
+.comment-delete-btn {
+  color: #e05252;
+}
+
+.comment-delete-btn:hover {
+  color: #c0392b;
+  background: #fff0f0;
+}
+
+/* 댓글 인라인 수정 영역 */
+.comment-edit-area {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-top: 6px;
+}
+
+.comment-edit-area .input-box {
+  flex: 1;
+  padding: 8px 14px;
+  font-size: 0.9rem;
+}
+
+.comment-cancel-btn {
+  font-size: 0.85rem;
+  color: #888;
+  padding: 4px 10px;
+  border-radius: 6px;
+  white-space: nowrap;
+  transition: background 0.15s, color 0.15s;
+}
+
+.comment-cancel-btn:hover {
+  color: #444;
+  background: #f0f0f0;
 }
 
 .sub-replies {
   margin-top: 12px;
-  padding-left: 4px;
-  border-left: 2px solid #f0f0f0;
+  padding-left: 16px;
+  border-left: 2px solid #ebebeb;
 }
 
 /* Comment Input */
@@ -650,6 +750,7 @@ button {
 
   .info-section {
     flex: 1;
+    min-width: 0; /* flex 자식 overflow 방지 — 긴 댓글이 이미지 영역을 밀지 않도록 */
     padding: 0;
   }
 
