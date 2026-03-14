@@ -1,21 +1,22 @@
 import axios from 'axios';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import type { MeResDto, MyReplyResDto } from '../types/user';
+import type { MeResDto } from '../types/user';
 import type { LikedPlaceResDto, MyPlaceItemResDto } from '../types/place';
 import type { ApiResponse } from '../types/auth';
-import { getMe, getMyPlaces, getMyReplies, getLikedPlaces } from '../api/mypage';
+import { getMe, getMyPlaces, getLikedPlaces } from '../api/mypage';
 import { deletePlace } from '../api/places';
 import ProfileCard from '../components/ProfileCard';
 import SavedPlacesSection from '../components/SavedPlacesSection';
 import MyPlacesSection from '../components/MyPlacesSection';
-import MyCommentsSection from '../components/MyCommentsSection';
+// TODO: MVP에서는 비활성화. 추후 재활성화 시 아래 import 및 관련 state/API 호출 복원
+// import MyCommentsSection from '../components/MyCommentsSection';
 
 export default function MyPage() {
-  // 프로필 / 찜한 장소 / 내가 쓴 댓글 — 단일 useEffect로 묶어 처리
+  // 프로필 / 찜한 장소 — 단일 useEffect로 묶어 처리
+  // TODO: MVP에서는 댓글 목록 비활성화. 재활성화 시 myReplies state 및 getMyReplies 호출 복원
   const [profile, setProfile] = useState<MeResDto | null>(null);
   const [likedPlaces, setLikedPlaces] = useState<LikedPlaceResDto[]>([]);
-  const [myReplies, setMyReplies] = useState<MyReplyResDto[]>([]);
   const [sectionsLoading, setSectionsLoading] = useState(true);
   const [sectionsError, setSectionsError] = useState<string | null>(null);
 
@@ -28,12 +29,12 @@ export default function MyPage() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 프로필 + 찜한 장소 + 내가 쓴 댓글 병렬 조회
-    Promise.all([getMe(), getLikedPlaces(), getMyReplies()])
-      .then(([profileData, likedPlacesData, repliesData]) => {
+    // 프로필 + 찜한 장소 병렬 조회
+    // TODO: MVP에서는 댓글 목록 비활성화. 재활성화 시 getMyReplies() 추가 및 setMyReplies 복원
+    Promise.all([getMe(), getLikedPlaces()])
+      .then(([profileData, likedPlacesData]) => {
         setProfile(profileData);
         setLikedPlaces(likedPlacesData);
-        setMyReplies(repliesData);
       })
       .catch((err) => {
         if (axios.isAxiosError(err)) {
@@ -105,9 +106,10 @@ export default function MyPage() {
             <MyPlacesSection places={myPlaces} onDelete={handleDeleteMyPlace} />
           </>
         )}
-        {!sectionsLoading && !sectionsError && (
+        {/* TODO: MVP에서는 댓글 목록 비활성화. 재활성화 시 아래 주석 해제 및 관련 state/API 호출 복원 */}
+        {/* {!sectionsLoading && !sectionsError && (
           <MyCommentsSection comments={myReplies} />
-        )}
+        )} */}
       </main>
     </>
   );

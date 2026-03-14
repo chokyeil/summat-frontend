@@ -998,6 +998,51 @@ button {
   border-radius: 8px;
 }
 
+.signup-success {
+  font-size: 0.85rem;
+  color: #2e7d32;
+  padding: 8px 12px;
+  background: #e8f5e9;
+  border-radius: 8px;
+}
+
+/* 이메일 입력 + 액션 버튼 가로 배치 */
+.signup-input-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.signup-input-row .signup-input {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 중복확인 / 인증번호 발송 / 인증 확인 버튼 (아웃라인 스타일) */
+.btn-signup-outline {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1.5px solid var(--color-brand);
+  background: transparent;
+  color: var(--color-brand);
+  font-size: 0.85rem;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.2s, color 0.2s;
+}
+
+.btn-signup-outline:hover:not(:disabled) {
+  background: var(--color-brand);
+  color: #fff;
+}
+
+.btn-signup-outline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .btn-signup {
   margin-top: 10px;
   width: 100%;
