@@ -6,6 +6,7 @@ import type { PlaceFormValues } from '../components/PlaceForm';
 import { getPlaceDetailById, updatePlace, deletePlace } from '../api/places';
 import type { ApiResponse } from '../types/auth';
 import type { PlaceTagCode } from '../constants/placeTags';
+import { redirectToLogin } from '../utils/auth';
 
 export default function PlaceEditPage() {
   const { placeId } = useParams<{ placeId: string }>();
@@ -35,7 +36,7 @@ export default function PlaceEditPage() {
           region: data.region,
           tags: data.tags as PlaceTagCode[],
           summary: data.summary,
-          description: data.description,
+          description: data.description ?? '',
           image: null, // 이미지는 새로 선택 시에만 교체, 미선택 시 기존 이미지 유지
         });
       })
@@ -75,6 +76,7 @@ export default function PlaceEditPage() {
   }
 
   async function handleDelete() {
+    if (!redirectToLogin()) return;
     if (!confirm('정말 삭제하시겠어요?')) return;
     const id = Number(placeId);
     if (!placeId || isNaN(id)) return;

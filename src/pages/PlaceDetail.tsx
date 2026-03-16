@@ -5,6 +5,8 @@ import type { PlaceDetailResDto, ReplyResDto } from '../types/place';
 import { getPlaceDetailById, getReplies, createReply, updateReply, deleteReply, togglePlaceLike, increasePlaceView } from '../api/places';
 import { getMe } from '../api/mypage';
 import { resolveImageUrl } from '../utils/imageUrl';
+import { isTokenValid } from '../utils/jwt';
+import { redirectToLogin } from '../utils/auth';
 import DetailHeader from '../components/DetailHeader';
 import PlaceImage from '../components/PlaceImage';
 import PlaceInfo from '../components/PlaceInfo';
@@ -31,7 +33,8 @@ export default function PlaceDetail() {
   const [commentError, setCommentError] = useState<string | null>(null);
   const [isSubmittingComment, setIsSubmittingComment] = useState(false);
 
-  const isLoggedIn = !!localStorage.getItem('accessToken');
+  const storedToken = localStorage.getItem('accessToken');
+  const isLoggedIn = storedToken !== null && isTokenValid(storedToken);
 
   // StrictMode 중복 호출 방지 — 이미 조회수 증가 요청을 보낸 placeId를 기억
   // React 18 StrictMode는 simulated unmount 시 ref 값을 보존하므로 2차 effect에서 차단 가능
@@ -97,6 +100,7 @@ export default function PlaceDetail() {
   }
 
   async function handleLikeToggle() {
+    if (!redirectToLogin()) return;
     const id = Number(placeId);
     setLikeError(null);
     try {
@@ -109,6 +113,7 @@ export default function PlaceDetail() {
   }
 
   async function handleCommentSubmit(content: string) {
+    if (!redirectToLogin()) return;
     const id = Number(placeId);
     setCommentError(null);
     setIsSubmittingComment(true);
@@ -125,6 +130,7 @@ export default function PlaceDetail() {
   }
 
   async function handleUpdateReply(replyId: number, content: string) {
+    if (!redirectToLogin()) return;
     const id = Number(placeId);
     setCommentError(null);
     try {
@@ -137,6 +143,8 @@ export default function PlaceDetail() {
   }
 
   async function handleDeleteReply(replyId: number) {
+    if (!redirectToLogin()) return;
+    if (!confirm('정말 삭제하시겠습니까?')) return;
     const id = Number(placeId);
     setCommentError(null);
     try {
@@ -165,47 +173,51 @@ export default function PlaceDetail() {
         placeId={placeId}
       />
       <main className="detail-container">
+        {/* 이미지 + 기본정보: 데스크탑에서 좌우 분할 */}
         <div className="content-wrapper">
           <PlaceImage src={resolveImageUrl(place.imageUrl)} alt={place.placeName} />
 
           <section className="info-section">
             <PlaceInfo place={place} />
-
             <TagChips tags={place.tags} />
-
-            <PlaceDescription text={place.description} />
-
-            <div className="engagement-stats">
-              <button
-                type="button"
-                className="stat-item like-stat-btn"
-                onClick={handleLikeToggle}
-                aria-label={`좋아요 ${likeCount}`}
-              >
-                {liked ? '❤️' : '🤍'} 좋아요 {likeCount}
-              </button>
-              <div className="stat-item">💬 댓글 {replies.length}</div>
-              <div className="stat-item">👁 조회 {viewCount}</div>
-            </div>
-
-            {likeError && <p className="status-message" role="alert">{likeError}</p>}
-            {commentError && <p className="status-message" role="alert">{commentError}</p>}
-            <CommentList
-              replies={replies}
-              currentUserId={currentUserId}
-              onEdit={handleUpdateReply}
-              onDelete={handleDeleteReply}
-              onReply={handleReply}
-              isLoggedIn={isLoggedIn}
-            />
-            <CommentInput
-              isLoggedIn={isLoggedIn}
-              onSubmit={handleCommentSubmit}
-              replyingTo={replyingTo}
-              onCancelReply={() => setReplyingTo(null)}
-              isSubmitting={isSubmittingComment}
-            />
           </section>
+        </div>
+
+        {/* 상세 설명 본문: content-wrapper 아래 전체 너비 */}
+        <PlaceDescription text={place.description} />
+
+        {/* 통계 + 댓글 */}
+        <div className="detail-lower">
+          <div className="engagement-stats">
+            <button
+              type="button"
+              className="stat-item like-stat-btn"
+              onClick={handleLikeToggle}
+              aria-label={`좋아요 ${likeCount}`}
+            >
+              {liked ? '❤️' : '🤍'} 좋아요 {likeCount}
+            </button>
+            <div className="stat-item">💬 댓글 {replies.length}</div>
+            <div className="stat-item">👁 조회 {viewCount}</div>
+          </div>
+
+          {likeError && <p className="status-message" role="alert">{likeError}</p>}
+          {commentError && <p className="status-message" role="alert">{commentError}</p>}
+          <CommentList
+            replies={replies}
+            currentUserId={currentUserId}
+            onEdit={handleUpdateReply}
+            onDelete={handleDeleteReply}
+            onReply={handleReply}
+            isLoggedIn={isLoggedIn}
+          />
+          <CommentInput
+            isLoggedIn={isLoggedIn}
+            onSubmit={handleCommentSubmit}
+            replyingTo={replyingTo}
+            onCancelReply={() => setReplyingTo(null)}
+            isSubmitting={isSubmittingComment}
+          />
         </div>
       </main>
     </>

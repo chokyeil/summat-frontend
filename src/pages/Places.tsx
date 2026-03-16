@@ -21,7 +21,7 @@ export default function Places() {
   // UI 필터 상태 — 변경 시 getPlaceList() 재호출 (GET /places/search)
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState<CategoryCode>(CATEGORIES[0].code);
-  const [activeRegion, setActiveRegion] = useState<RegionCode>('all');
+  const [activeRegion, setActiveRegion] = useState<RegionCode>('전국');
   const [selectedTags, setSelectedTags] = useState<PlaceTagCode[]>([]);
 
   useEffect(() => {

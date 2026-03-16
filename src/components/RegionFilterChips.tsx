@@ -1,4 +1,4 @@
-import { REGIONS, type RegionCode } from '../constants/regions';
+import { REGION_OPTIONS, type RegionCode } from '../constants/regions';
 import ScrollableFilterRow from './ScrollableFilterRow';
 
 interface RegionFilterChipsProps {
@@ -9,14 +9,14 @@ interface RegionFilterChipsProps {
 export default function RegionFilterChips({ active, onSelect }: RegionFilterChipsProps) {
   return (
     <ScrollableFilterRow>
-      {REGIONS.map((region) => (
+      {REGION_OPTIONS.map((region) => (
         <button
-          key={region.code}
+          key={region}
           type="button"
-          className={`chip${active === region.code ? ' active' : ''}`}
-          onClick={() => onSelect(region.code)}
+          className={`chip${active === region ? ' active' : ''}`}
+          onClick={() => onSelect(region)}
         >
-          {region.label}
+          {region}
         </button>
       ))}
     </ScrollableFilterRow>

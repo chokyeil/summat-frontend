@@ -42,3 +42,16 @@ export function getRoles(token: string): string[] {
 export function isAdmin(token: string): boolean {
   return getRoles(token).includes('ROLE_ADMIN');
 }
+
+/**
+ * accessToken 유효 여부 확인 (파싱 성공 + 미만료)
+ * exp 클레임 기준으로 만료 여부 판단 (초 단위 → ms 단위 변환)
+ * exp 클레임이 없으면 유효로 간주
+ * UI 제어 / 사전 보호 전용 — 실제 권한은 서버에서 최종 판단
+ */
+export function isTokenValid(token: string): boolean {
+  const payload = decodePayload(token);
+  if (!payload) return false;
+  if (payload.exp === undefined) return true;
+  return payload.exp * 1000 > Date.now();
+}

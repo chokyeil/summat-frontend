@@ -142,7 +142,7 @@ export default function PlaceForm({
       <div className="pc-form-group">
         <span className="pc-form-label">지역</span>
         <div className="pc-scroll-wrapper">
-          {REGIONS.filter((r) => r.code !== 'all').map((reg) => (
+          {REGIONS.map((reg) => (
             <button
               key={reg.code}
               type="button"

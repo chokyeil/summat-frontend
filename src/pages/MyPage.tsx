@@ -6,6 +6,7 @@ import type { LikedPlaceResDto, MyPlaceItemResDto } from '../types/place';
 import type { ApiResponse } from '../types/auth';
 import { getMe, getMyPlaces, getLikedPlaces } from '../api/mypage';
 import { deletePlace } from '../api/places';
+import { redirectToLogin } from '../utils/auth';
 import ProfileCard from '../components/ProfileCard';
 import SavedPlacesSection from '../components/SavedPlacesSection';
 import MyPlacesSection from '../components/MyPlacesSection';
@@ -61,6 +62,7 @@ export default function MyPage() {
   }
 
   async function handleDeleteMyPlace(placeId: number) {
+    if (!redirectToLogin()) return;
     if (!confirm('정말 삭제하시겠어요?')) return;
     setDeleteError(null);
     try {

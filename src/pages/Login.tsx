@@ -6,14 +6,18 @@ import { login } from '../api/auth';
 import type { ApiResponse } from '../types/auth';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
   const navigate = useNavigate();
   const location = useLocation();
-  const next = new URLSearchParams(location.search).get('next') ?? '/places';
+  const params = new URLSearchParams(location.search);
+  const next = params.get('next') ?? '/places';
+  const expired = params.get('expired') === '1';
+
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState<string | null>(
+    expired ? '로그인 시간이 만료되어 자동으로 로그아웃되었습니다. 다시 로그인해주세요.' : null
+  );
+  const [loading, setLoading] = useState(false);
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();

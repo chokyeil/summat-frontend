@@ -37,8 +37,8 @@ export interface PlaceDetailResDto {
   imageUrl: string;
   lotAddress: string;
   roadAddress: string;
-  summary: string;
-  description: string;
+  summary: string;       // 한 줄 소개 (one_line_desc) — 상세 본문 대체 불가
+  description: string | null; // 상세 설명 본문 (place_description) — nullable
   category: string;
   region: string;
   tags: string[];

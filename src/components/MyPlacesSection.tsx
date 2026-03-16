@@ -1,7 +1,8 @@
 import { useRef, useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import type { MyPlaceItemResDto } from '../types/place';
 import { resolveImageUrl } from '../utils/imageUrl';
+import { redirectToLogin } from '../utils/auth';
 
 interface MyPlacesSectionProps {
   places: MyPlaceItemResDto[];
@@ -12,6 +13,7 @@ const SCROLL_STEP = 192; // 카드 폭(160~180px) + gap(12px) 기준
 
 export default function MyPlacesSection({ places, onDelete }: MyPlacesSectionProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const navigate = useNavigate();
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(false);
 
@@ -63,7 +65,13 @@ export default function MyPlacesSection({ places, onDelete }: MyPlacesSectionPro
               </button>
             </div>
           )}
-          <Link to="/register" className="mypage-cta-link">+ 등록하기</Link>
+          <button
+            type="button"
+            className="mypage-cta-link"
+            onClick={() => { if (!redirectToLogin()) return; navigate('/register'); }}
+          >
+            + 등록하기
+          </button>
         </div>
       </div>
       {places.length === 0 ? (
@@ -87,9 +95,13 @@ export default function MyPlacesSection({ places, onDelete }: MyPlacesSectionPro
                   </div>
                 </Link>
                 <div className="mini-card-actions">
-                  <Link to={`/places/${place.placeId}/edit`} className="mini-card-edit">
+                  <button
+                    type="button"
+                    className="mini-card-edit"
+                    onClick={() => { if (!redirectToLogin()) return; navigate(`/places/${place.placeId}/edit`); }}
+                  >
                     수정하기
-                  </Link>
+                  </button>
                   {onDelete && (
                     <button type="button" className="mini-card-delete" onClick={() => onDelete(place.placeId)}>
                       삭제하기

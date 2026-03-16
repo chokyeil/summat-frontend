@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import type { ReplyResDto } from '../types/place';
+import { redirectToLogin } from '../utils/auth';
 
 interface CommentItemProps {
   reply: ReplyResDto;
@@ -81,7 +82,10 @@ function CommentItem({ reply, currentUserId, onDelete, onEdit, onReply, isLogged
               <button
                 type="button"
                 className="comment-edit-btn"
-                onClick={() => setIsEditing(true)}
+                onClick={() => {
+                  if (!redirectToLogin()) return;
+                  setIsEditing(true);
+                }}
               >
                 수정
               </button>

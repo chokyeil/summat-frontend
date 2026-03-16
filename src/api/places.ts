@@ -49,7 +49,7 @@ export async function getPlaceList(params?: PlaceSearchParams): Promise<PlaceLis
   const qp = new URLSearchParams();
   if (params?.q) qp.append('q', params.q);
   if (params?.categories && params.categories !== 'all') qp.append('categories', params.categories);
-  if (params?.regions && params.regions !== 'all') qp.append('regions', params.regions);
+  if (params?.regions && params.regions !== '전국') qp.append('regions', params.regions);
   // TODO: 백엔드 tags 필터 반영 완료 전까지 전송 구조만 유지 (현재 필터링 미동작)
   params?.tags?.forEach((tag) => qp.append('tags', tag));
   if (params?.page !== undefined) qp.append('page', String(params.page));

@@ -1,5 +1,6 @@
 import { Link, useNavigate } from 'react-router-dom';
 import { isAdmin } from '../utils/jwt';
+import { redirectToLogin } from '../utils/auth';
 
 /**
  * 전역 헤더
@@ -18,6 +19,11 @@ export default function Header() {
     navigate('/places');
   }
 
+  function handleProtectedNav(path: string) {
+    if (!redirectToLogin()) return;
+    navigate(path);
+  }
+
   return (
     <header className="header">
       <div className="container header-inner">
@@ -26,8 +32,8 @@ export default function Header() {
           {token ? (
             <>
               {adminUser && <Link to="/admin">Admin</Link>}
-              <Link to="/register" className="header-desktop-only">등록</Link>
-              <Link to="/mypage" className="header-desktop-only">마이페이지</Link>
+              <button type="button" className="header-desktop-only" onClick={() => handleProtectedNav('/register')}>등록</button>
+              <button type="button" className="header-desktop-only" onClick={() => handleProtectedNav('/mypage')}>마이페이지</button>
               <button type="button" onClick={handleLogout}>로그아웃</button>
             </>
           ) : (
