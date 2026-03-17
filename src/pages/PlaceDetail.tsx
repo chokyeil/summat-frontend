@@ -166,12 +166,7 @@ export default function PlaceDetail() {
 
   return (
     <>
-      <DetailHeader
-        likeCount={likeCount}
-        liked={liked}
-        onLike={handleLikeToggle}
-        placeId={placeId}
-      />
+      <DetailHeader placeId={placeId} />
       <main className="detail-container">
         {/* 이미지 + 기본정보: 데스크탑에서 좌우 분할 */}
         <div className="content-wrapper">

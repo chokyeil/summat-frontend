@@ -1,14 +1,11 @@
 import { useNavigate } from 'react-router-dom';
 
 interface DetailHeaderProps {
-  likeCount: number;
-  liked?: boolean;
-  onLike?: () => void;
   placeId?: string;
   isOwner?: boolean;
 }
 
-export default function DetailHeader({ likeCount, liked, onLike, placeId, isOwner }: DetailHeaderProps) {
+export default function DetailHeader({ placeId, isOwner }: DetailHeaderProps) {
   const navigate = useNavigate();
 
   return (
@@ -32,14 +29,6 @@ export default function DetailHeader({ likeCount, liked, onLike, placeId, isOwne
             ✏️
           </button>
         )}
-        <button
-          type="button"
-          className="btn-icon"
-          onClick={onLike}
-          aria-label={`좋아요 ${likeCount}`}
-        >
-          {liked ? '❤️' : '🤍'} {likeCount}
-        </button>
       </div>
     </div>
   );
