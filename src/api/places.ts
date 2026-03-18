@@ -1,26 +1,14 @@
-import axios from 'axios';
 import api from './index';
 import type { ApiResponse } from '../types/auth';
 import type {
   PlaceListResDto,
   PlaceDetailResDto,
-  PlaceListPageResDto,
-  PlacesDetailResDto,
   ReplyResDto,
   CreateReplyReqDto,
   UpdateReplyReqDto,
   TogglePlaceLikeResDto,
   IncreasePlaceViewResDto,
 } from '../types/place';
-import type { PlaceTagCode } from '../constants/placeTags';
-import { mockPlaceList, mockPlaceDetail } from '../mocks/places';
-
-const USE_MOCK = import.meta.env.VITE_USE_MOCK === 'true';
-
-/** axios 네트워크 에러(CORS 포함) 여부 확인. 서버 응답이 있는 4xx/5xx는 해당 안 됨. */
-function isNetworkError(err: unknown): boolean {
-  return axios.isAxiosError(err) && !err.response;
-}
 
 // ============================================================
 // 백엔드 연동 API 함수 — 백엔드 규격 엔드포인트 + 타입 사용
@@ -58,10 +46,7 @@ export async function getPlaceList(params?: PlaceSearchParams): Promise<PlaceLis
   return res.data.data;
 }
 
-/**
- * GET /places/detail/{placeId} — 장소 상세 조회
- * TODO: VITE_USE_MOCK 시 PlaceDetailResDto mock 데이터 추가 필요 (화면 연동 시)
- */
+/** GET /places/detail/{placeId} — 장소 상세 조회 */
 export async function getPlaceDetailById(placeId: number): Promise<PlaceDetailResDto> {
   const res = await api.get<ApiResponse<PlaceDetailResDto>>(`/places/detail/${placeId}`);
   return res.data.data;
@@ -155,56 +140,4 @@ export async function deleteReply(replyId: number): Promise<void> {
   await api.delete<ApiResponse>(`/reply/${replyId}`);
 }
 
-// ============================================================
-// mock 기반 API 함수 — 기존 화면 컴포넌트에서 사용 중
-// TODO: 화면 API 연동 시 위 백엔드 연동 함수로 순차 교체 후 삭제
-// ============================================================
-
-/**
- * @deprecated 화면 연동 시 getPlaceList()로 교체
- * TODO: 실제 엔드포인트 경로 확인 필요
- */
-export async function getPlaces(page = 0): Promise<PlaceListPageResDto> {
-  if (USE_MOCK) return mockPlaceList;
-  try {
-    const res = await api.get<ApiResponse<PlaceListPageResDto>>('/api/places', { params: { page } });
-    return res.data.data;
-  } catch (err) {
-    if (isNetworkError(err)) return mockPlaceList;
-    throw err;
-  }
-}
-
-/**
- * @deprecated mock 전용 — Places.tsx는 getPlaceList()로 교체 완료
- * 엔드포인트 /places/search 확정. 타입/구조는 위 getPlaceList() 참고.
- */
-export async function searchPlaces(tags: PlaceTagCode[], page = 0): Promise<PlaceListPageResDto> {
-  if (USE_MOCK) return mockPlaceList;
-  try {
-    const params = new URLSearchParams();
-    params.append('page', String(page));
-    tags.forEach((tag) => params.append('tags', tag));
-    const res = await api.get<ApiResponse<PlaceListPageResDto>>('/api/places/search', { params });
-    return res.data.data;
-  } catch (err) {
-    if (isNetworkError(err)) return mockPlaceList;
-    throw err;
-  }
-}
-
-/**
- * @deprecated 화면 연동 시 getPlaceDetailById()로 교체
- * TODO: 실제 엔드포인트 경로 확인 필요
- */
-export async function getPlaceDetail(placeId: number): Promise<PlacesDetailResDto> {
-  if (USE_MOCK) return mockPlaceDetail;
-  try {
-    const res = await api.get<ApiResponse<PlacesDetailResDto>>(`/api/places/${placeId}`);
-    return res.data.data;
-  } catch (err) {
-    if (isNetworkError(err)) return mockPlaceDetail;
-    throw err;
-  }
-}
 
