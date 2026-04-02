@@ -1,5 +1,6 @@
+import { PLACEHOLDER_IMAGE } from '../utils/imageUrl';
+
 interface PlaceImageProps {
-  /** TODO: PlacesDetailResDto에 placeImageUrl 추가 시 연결 */
   src?: string;
   alt: string;
 }
@@ -7,11 +8,17 @@ interface PlaceImageProps {
 export default function PlaceImage({ src, alt }: PlaceImageProps) {
   return (
     <section className="image-section">
-      {src ? (
-        <img src={src} alt={alt} className="main-img" />
-      ) : (
-        <div className="main-img card-img--empty" aria-hidden="true" />
-      )}
+      <img
+        src={src || PLACEHOLDER_IMAGE}
+        alt={alt}
+        className="main-img"
+        onError={(e) => {
+          const img = e.currentTarget;
+          if (img.dataset.fallbackApplied === 'true') return;
+          img.dataset.fallbackApplied = 'true';
+          img.src = PLACEHOLDER_IMAGE;
+        }}
+      />
     </section>
   );
 }

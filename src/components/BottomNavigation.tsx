@@ -6,7 +6,6 @@ const NAV_ITEMS = [
   { icon: '🏠', label: '홈', to: '/places' },
   { icon: '🔍', label: '검색', to: '/search' },
   { icon: '➕', label: '등록', to: '/register' },
-  { icon: '🧡', label: '찜', to: '/likes' },
   { icon: '👤', label: '마이', to: '/mypage' },
 ] as const;
 

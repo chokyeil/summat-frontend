@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import type { MyPlaceItemResDto } from '../types/place';
-import { resolveImageUrl } from '../utils/imageUrl';
+import { resolveImageUrl, PLACEHOLDER_IMAGE } from '../utils/imageUrl';
 import { redirectToLogin } from '../utils/auth';
 
 interface MyPlacesSectionProps {
@@ -84,11 +84,17 @@ export default function MyPlacesSection({ places, onDelete }: MyPlacesSectionPro
             {places.map((place) => (
               <article key={place.placeId} className="mini-card">
                 <Link to={`/places/${place.placeId}`} className="mini-card-link">
-                  {place.imageUrl ? (
-                    <img src={resolveImageUrl(place.imageUrl)} alt={place.placeName} className="mini-card-img" />
-                  ) : (
-                    <div className="mini-card-img mini-card-img--empty" aria-hidden="true" />
-                  )}
+                  <img
+                    src={resolveImageUrl(place.imageUrl) || PLACEHOLDER_IMAGE}
+                    alt={place.placeName}
+                    className="mini-card-img"
+                    onError={(e) => {
+                      const img = e.currentTarget;
+                      if (img.dataset.fallbackApplied === 'true') return;
+                      img.dataset.fallbackApplied = 'true';
+                      img.src = PLACEHOLDER_IMAGE;
+                    }}
+                  />
                   <div className="mini-card-info">
                     <div className="mini-card-title">{place.placeName}</div>
                     <div className="mini-card-meta">{place.category}</div>

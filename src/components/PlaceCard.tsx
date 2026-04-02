@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import type { PlaceListItemResDto } from '../types/place';
 import { PLACE_TAGS } from '../constants/placeTags';
-import { resolveImageUrl } from '../utils/imageUrl';
+import { resolveImageUrl, PLACEHOLDER_IMAGE } from '../utils/imageUrl';
 
 const tagLabelMap = Object.fromEntries(PLACE_TAGS.map((t) => [t.code, t.label]));
 
@@ -11,7 +11,7 @@ interface PlaceCardProps {
 }
 
 export default function PlaceCard({ place, onLike }: PlaceCardProps) {
-  const imgSrc = resolveImageUrl(place.imageUrl);
+  const imgSrc = resolveImageUrl(place.imageUrl) || PLACEHOLDER_IMAGE;
 
   function handleLikeClick(e: React.MouseEvent) {
     e.preventDefault();
@@ -22,15 +22,17 @@ export default function PlaceCard({ place, onLike }: PlaceCardProps) {
   return (
     <article className="card">
       <Link to={`/places/${place.placeId}`}>
-        {imgSrc ? (
-          <img
-            src={imgSrc}
-            alt={place.placeName}
-            className="card-img"
-          />
-        ) : (
-          <div className="card-img card-img--empty" aria-hidden="true" />
-        )}
+        <img
+          src={imgSrc}
+          alt={place.placeName}
+          className="card-img"
+          onError={(e) => {
+            const img = e.currentTarget;
+            if (img.dataset.fallbackApplied === 'true') return;
+            img.dataset.fallbackApplied = 'true';
+            img.src = PLACEHOLDER_IMAGE;
+          }}
+        />
         <div className="card-body">
           <div className="card-meta">{place.category}</div>
           <h3 className="card-title">{place.placeName}</h3>

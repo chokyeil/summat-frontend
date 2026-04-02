@@ -6,6 +6,7 @@ import type { CategoryCode } from '../constants/categories';
 import type { RegionCode } from '../constants/regions';
 import { CATEGORIES } from '../constants/categories';
 import { getPlaceList, togglePlaceLike } from '../api/places';
+import { redirectToLogin } from '../utils/auth';
 import SearchBar from '../components/SearchBar';
 import CategoryTabs from '../components/CategoryTabs';
 import RegionFilterChips from '../components/RegionFilterChips';
@@ -45,6 +46,7 @@ export default function Places() {
   }
 
   async function handleLikeToggle(placeId: number) {
+    if (!redirectToLogin()) return;
     setLikeError(null);
     try {
       const data = await togglePlaceLike(placeId);
